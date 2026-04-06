@@ -67,3 +67,72 @@ python -m pytest
 
 ### Confidence Level: (4/5)
 The core scheduling behaviors are well tested and all 10 tests pass. I would give it a full 5 stars with more time to test overlapping durations and invalid input handling.
+# 🐾 PawPal+
+
+PawPal+ is a Streamlit app that helps a busy pet owner plan and manage daily care tasks for their pets. The app uses a smart scheduling system to prioritize, sort, and organize tasks based on available time and priority level.
+
+---
+
+## 🚀 Features
+
+- **Owner & Pet Setup** — Enter your name, pet info, and how much time you have available today
+- **Task Management** — Add care tasks with a name, duration, priority, frequency, and start time
+- **Smart Sorting** — Tasks are automatically sorted chronologically by start time
+- **Priority Scheduling** — The scheduler fits tasks into your day starting with the highest priority ones
+- **Conflict Detection** — Get warned if two tasks are scheduled at the same start time
+- **Recurring Tasks** — Daily and weekly tasks auto-generate the next occurrence when marked complete
+- **Filtering** — View tasks by completion status (all, pending, or completed)
+- **Daily Plan** — Generate a clean daily schedule that fits within your available time
+
+---
+
+## 📸 Demo
+
+<a href="/course_images/ai110/pawpal_screenshot.png" target="_blank"><img src='/course_images/ai110/pawpal_screenshot.png' title='PawPal App' width='' alt='PawPal App' class='center-block' /></a>
+
+---
+
+##  Setup
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+##  Testing PawPal+
+
+To run the test suite:
+```bash
+python -m pytest
+```
+
+### What the tests cover
+- Task completion and status updates
+- Recurring daily and weekly task generation
+- Non-recurring task handling
+- Chronological sorting by start time
+- Conflict detection for duplicate time slots
+- Edge cases: empty pet list, over-scheduling, exact time fit
+
+### Confidence Level:(4/5)
+
+---
+
+PawPal+ includes several intelligent scheduling features:
+
+- **Sorting by time**: Tasks are sorted by start time so the daily plan flows chronologically
+- **Filtering**: Tasks can be filtered by pet name or completion status
+- **Recurring tasks**: Completing a daily or weekly task auto-creates the next occurrence using Python's timedelta
+- **Conflict detection**: The scheduler warns if two tasks share the same start time
+
+---
+
+## Project Structure
+
+- `app.py` — Streamlit UI
+- `pawpal_system.py` — Backend logic (Task, Pet, Owner, Scheduler)
+- `main.py` — CLI demo script
+- `tests/test_pawpal.py` — Automated test suite
+- `uml_final.png` — Final UML class diagram
+- `reflection.md` — Project reflection and design notes
