@@ -148,6 +148,15 @@ class Scheduler:
         time_used = 0
         conflicts = []
 
+        # Check for time conflicts
+        seen_times = {}
+        for task in all_tasks:
+            if task.start_time in seen_times:
+                conflicts.append(f"⚠️  Time conflict: '{task.name}' and '{seen_times[task.start_time]}' are both scheduled at {task.start_time}.")
+            else:
+                seen_times[task.start_time] = task.name
+
+        # Check high priority time
         high_priority_time = sum(t.duration for t in all_tasks if t.priority == "high")
         if high_priority_time > self.owner.available_time:
             conflicts.append(f"High-priority tasks need {high_priority_time} min but only {self.owner.available_time} min available.")
@@ -168,7 +177,7 @@ class Scheduler:
         if conflicts:
             print("\nConflicts detected:")
             for c in conflicts:
-                print(f"  ⚠️  {c}")
+                print(f"  {c}")
 
         if not plan:
             print("No tasks fit within the available time.")
