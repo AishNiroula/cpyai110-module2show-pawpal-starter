@@ -3,28 +3,56 @@
 ## 1. System Design
 
 **a. Initial design**
-
-- Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
+There are four classes in my original UML design. The pet owner's name and available time in minutes are stored in the Owner class. The name, species, and age of the pet are stored in the Pet class. The name, priority level, and duration in minutes of a care job are stored in the job class. The Scheduler class is in charge of adding tasks, creating a daily schedule, and displaying that plan. It also maintains a list of tasks and the owner's available time.
 
 **b. Design changes**
+My design is yet to be changed since I am still at the early stages of planning. I will update this section as I implement the project.
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+Pet
 
+Attributes: name, species, age
+Methods: get_info()
+
+Task
+
+Attributes: name, duration, priority
+Methods: get_details()
+
+Scheduler
+
+Attributes: tasks, available_time
+Methods: add_task(task), generate_plan(), display_plan()
+
+this is what copilot suggested 
+
+"Summary Review of pawpal_system.py
+Class Relationships:
+
+Existing: Scheduler composes Task list; others are standalone.
+Missing:
+Owner should have pets: List[Pet] for ownership.
+Task should reference a Pet (and possibly Owner) for assignment.
+Scheduler should integrate with Owner (e.g., via constructor) to sync available_time and access pets.
+Potential Logic Bottlenecks:
+
+Scheduling may over-allocate time without validation.
+Task.priority as string risks errors; use Enum.
+No input validation in dataclasses (e.g., negative ages).
+List-based storage could scale poorly for large task sets.
+Methods are stubs; future implementations risk monolithic code.
+Recommendations:
+
+Add relationships for better cohesion.
+Implement methods with constraints and helpers.
+Use enums, validation, and tests to prevent issues."
 ---
 
 ## 2. Scheduling Logic and Tradeoffs
-
-**a. Constraints and priorities**
-
-- What constraints does your scheduler consider (for example: time, priority, preferences)?
-- How did you decide which constraints mattered most?
+My scheduler considers two main constraints: available time and task priority. Available time limits how many tasks can fit into a single day — if the total duration of all tasks exceeds the owner's available time, lower priority tasks get dropped first. Priority determines the order tasks are scheduled, with high priority tasks always being scheduled before medium and low priority ones. I also added start time as a constraint for conflict detection, so two tasks cannot occupy the same time slot.
+I decided that priority mattered most because a pet owner should always complete the most critical care tasks first, like feeding and medication, before optional ones like grooming or enrichment. Available time was the second most important constraint because no matter how high a task's priority is, it can only be scheduled if there is enough time in the day to complete it.
 
 **b. Tradeoffs**
-
-- Describe one tradeoff your scheduler makes.
-- Why is that tradeoff reasonable for this scenario?
+One tradeoff my scheduler makes is that conflict detection only checks for exact start time matches rather than checking if task durations overlap. For example, a 30-minute task at 08:00 and a 10-minute task at 08:20 would not be flagged even though they overlap. I kept this simpler approach because it is easier to understand and sufficient for a basic daily planner. Copilot suggested using a set instead of a dictionary for conflict detection, but I kept the dictionary version because it reports which specific tasks are conflicting by name, which is more useful to the user.
 
 ---
 
