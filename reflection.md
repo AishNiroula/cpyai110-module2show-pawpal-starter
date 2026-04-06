@@ -58,42 +58,33 @@ One tradeoff my scheduler makes is that conflict detection only checks for exact
 
 ## 3. AI Collaboration
 
-**a. How you used AI**
-
-- How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
-- What kinds of prompts or questions were most helpful?
+I used GitHub Copilot throughout this project in several ways. In the design phase I used Copilot Chat with #codebase to brainstorm my class structure and generate the initial UML diagram in Mermaid.js. During implementation I used Agent Mode to flesh out my class skeletons and Inline Chat to add docstrings. For testing I asked Copilot to suggest edge cases and generate test functions. The most helpful prompts were ones that referenced specific files using #file, because Copilot gave much more accurate suggestions when it could see my actual code.
 
 **b. Judgment and verification**
 
-- Describe one moment where you did not accept an AI suggestion as-is.
-- How did you evaluate or verify what the AI suggested?
-
+One moment where I did not accept an AI suggestion as-is was during conflict detection. Copilot suggested using a set instead of a dictionary to track seen start times, which would have been simpler but would have lost the ability to report which specific tasks were conflicting by name. I kept the dictionary version because it gives the user more useful information. I verified this by running the app and confirming that the conflict warning correctly named both tasks.
 ---
 
 ## 4. Testing and Verification
 
 **a. What you tested**
 
-- What behaviors did you test?
-- Why were these tests important?
+I tested ten behaviors in total. These included task completion status, adding tasks to a pet, chronological sorting by start time, daily and weekly recurring task generation, non-recurring task handling, time conflict detection, empty pet lists, over-scheduling, and exact time fits. These tests were important because they verified that the core scheduling logic works correctly before connecting it to the Streamlit UI. Without these tests I would not have been able to confidently say that the backend behaves as expected in both normal and edge case scenarios.
 
 **b. Confidence**
 
-- How confident are you that your scheduler works correctly?
-- What edge cases would you test next if you had more time?
-
+- I am fairly confident the scheduler works correctly for typical use cases. All 10 tests pass and the app behaves as expected in the browser. I would give it a 4 out of 5. If I had more time I would test overlapping task durations where two tasks don't share an exact start time but their durations cause them to overlap, tasks with invalid priority values like "urgent", an owner with multiple pets where tasks compete for the same time slot, and what happens when available time is set to zero.
 ---
 
 ## 5. Reflection
 
-**a. What went well**
-
-- What part of this project are you most satisfied with?
+I am most satisfied with how the scheduling logic came together. The scheduler correctly handles priority ordering, time constraints, recurring tasks, and conflict detection all in one clean method.h?
 
 **b. What you would improve**
 
-- If you had another iteration, what would you improve or redesign?
+If I had another iteration I would improve the conflict detection to check for overlapping durations rather than just exact start time matches. I would also add a way for the user to mark tasks complete directly in the Streamlit UI.
+
 
 **c. Key takeaway**
 
-- What is one important thing you learned about designing systems or working with AI on this project?
+The most important thing I learned is that AI is a powerful tool but you still have to be the architect. Copilot could generate code quickly but it could not always tell whether a suggestion fit my specific design. I had to evaluate every suggestion, test it, and decide whether it made my system better or just more complex.
