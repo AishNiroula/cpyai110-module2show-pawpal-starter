@@ -1,24 +1,43 @@
 from dataclasses import dataclass, field
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from datetime import datetime, timedelta
 
 @dataclass
 class Task:
     name: str
-    duration: int        # in minutes
-    priority: str        # "high", "medium", "low"
-    frequency: str       # "daily", "weekly", "as needed"
-    start_time: str = "09:00"  # HH:MM format
+    duration: int
+    priority: str
+    frequency: str
+    start_time: str = "09:00"
     completed: bool = False
+    due_date: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d"))
 
     def get_details(self):
         """Returns a formatted string with task details and completion status."""
         status = "Done" if self.completed else "Pending"
-        return f"{self.name} | {self.start_time} | {self.duration} min | Priority: {self.priority} | {status}"
+        return f"{self.name} | {self.start_time} | {self.duration} min | Priority: {self.priority} | Due: {self.due_date} | {status}"
 
-    def mark_complete(self):
-        """Marks the task as completed."""
+    def mark_complete(self) -> Optional["Task"]:
+        """Marks the task as completed and returns a new instance for the next occurrence if recurring."""
         self.completed = True
+        today = datetime.strptime(self.due_date, "%Y-%m-%d").date()
+
+        if self.frequency == "daily":
+            next_date = today + timedelta(days=1)
+        elif self.frequency == "weekly":
+            next_date = today + timedelta(weeks=1)
+        else:
+            return None
+
+        return Task(
+            name=self.name,
+            duration=self.duration,
+            priority=self.priority,
+            frequency=self.frequency,
+            start_time=self.start_time,
+            completed=False,
+            due_date=str(next_date)
+        )
 
 
 @dataclass
@@ -32,6 +51,19 @@ class Pet:
         """Adds a task to the pet's task list."""
         self.tasks.append(task)
 
+    def mark_task_complete(self, task_name: str):
+        """Marks a task complete and auto-adds the next occurrence if recurring."""
+        for task in self.tasks:
+            if task.name == task_name and not task.completed:
+                next_task = task.mark_complete()
+                if next_task:
+                    self.tasks.append(next_task)
+                    print(f"  ✅ '{task.name}' marked complete. Next occurrence added for {next_task.due_date}.")
+                else:
+                    print(f"  ✅ '{task.name}' marked complete. No recurrence.")
+                return
+        print(f"  ⚠️  Task '{task_name}' not found or already completed.")
+
     def get_info(self):
         """Returns a summary string of the pet's basic info and task count."""
         return f"{self.name} ({self.species}, age {self.age}) — {len(self.tasks)} tasks"
@@ -40,7 +72,7 @@ class Pet:
 @dataclass
 class Owner:
     name: str
-    available_time: int  # in minutes
+    available_time: int
     pets: List[Pet] = field(default_factory=list)
 
     def add_pet(self, pet: Pet):

@@ -13,21 +13,13 @@ cat.add_task(Task(name="Litter Box Cleaning", duration=10, priority="high", freq
 owner = Owner(name="Aishwarya", available_time=90, pets=[dog, cat])
 scheduler = Scheduler(owner=owner)
 
-print("=== Sorted by Time ===")
-for t in scheduler.sort_by_time():
-    print(f"  {t.start_time} - {t.name}")
+print("=== Marking Tasks Complete ===")
+dog.mark_task_complete("Feeding")
+dog.mark_task_complete("Grooming")
 
-print("\n=== Bella's Tasks ===")
-for t in scheduler.filter_tasks_by_pet("Bella"):
-    print(f"  {t.name}")
-
-print("\n=== Pending Tasks ===")
-for t in scheduler.filter_tasks_by_status(completed=False):
-    print(f"  {t.name}")
-
-print("\n=== Recurring Tasks (next 7 days) ===")
-for t in scheduler.expand_recurring_tasks():
-    print(f"  {t.name}")
+print("\n=== Bella's Tasks After Completion ===")
+for t in dog.tasks:
+    print(f"  {t.name} | Due: {t.due_date} | {'Done' if t.completed else 'Pending'}")
 
 print("\n=== Daily Plan ===")
 scheduler.display_plan()
