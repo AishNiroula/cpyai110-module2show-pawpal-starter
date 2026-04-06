@@ -13,6 +13,7 @@ st.markdown("Welcome to PawPal+! Set up your profile, add tasks, and generate a 
 
 st.divider()
 
+# --- Owner & Pet Setup ---
 st.subheader("1. Owner & Pet Info")
 owner_name = st.text_input("Owner name", value="Aishwarya")
 pet_name = st.text_input("Pet name", value="Bella")
@@ -28,6 +29,7 @@ if st.button("Set Up Owner & Pet"):
 
 st.divider()
 
+# --- Add Tasks ---
 st.subheader("2. Add Tasks")
 
 if st.session_state.owner is None:
@@ -41,32 +43,88 @@ else:
     with col3:
         priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
 
-    frequency = st.selectbox("Frequency", ["daily", "weekly", "as needed"])
+    col4, col5 = st.columns(2)
+    with col4:
+        frequency = st.selectbox("Frequency", ["daily", "weekly", "as needed"])
+    with col5:
+        start_time = st.text_input("Start time (HH:MM)", value="09:00")
 
     if st.button("Add Task"):
-        task = Task(name=task_name, duration=int(duration), priority=priority, frequency=frequency)
+        task = Task(
+            name=task_name,
+            duration=int(duration),
+            priority=priority,
+            frequency=frequency,
+            start_time=start_time
+        )
         st.session_state.owner.pets[0].add_task(task)
         st.success(f"Task '{task_name}' added!")
 
-    all_tasks = st.session_state.owner.get_all_tasks()
+    # Show current tasks sorted by time
+    all_tasks = st.session_state.scheduler.sort_by_time()
     if all_tasks:
-        st.write("Current tasks:")
-        st.table([{"Task": t.name, "Duration": t.duration, "Priority": t.priority, "Status": "Done" if t.completed else "Pending"} for t in all_tasks])
+        st.write("Current tasks (sorted by time):")
+        st.table([{
+            "Task": t.name,
+            "Start Time": t.start_time,
+            "Duration (min)": t.duration,
+            "Priority": t.priority,
+            "Frequency": t.frequency,
+            "Status": "✅ Done" if t.completed else "⏳ Pending"
+        } for t in all_tasks])
     else:
         st.info("No tasks yet. Add one above.")
 
 st.divider()
 
-st.subheader("3. Generate Daily Schedule")
+# --- Filter Tasks ---
+st.subheader("3. Filter Tasks")
+
+if st.session_state.scheduler is None:
+    st.info("Please set up your profile first.")
+else:
+    filter_option = st.radio("Filter by status", ["All", "Pending", "Completed"])
+    if filter_option == "Pending":
+        filtered = st.session_state.scheduler.filter_tasks_by_status(completed=False)
+    elif filter_option == "Completed":
+        filtered = st.session_state.scheduler.filter_tasks_by_status(completed=True)
+    else:
+        filtered = st.session_state.scheduler.get_all_tasks()
+
+    if filtered:
+        st.table([{
+            "Task": t.name,
+            "Priority": t.priority,
+            "Status": "✅ Done" if t.completed else "⏳ Pending"
+        } for t in filtered])
+    else:
+        st.info("No tasks match this filter.")
+
+st.divider()
+
+# --- Generate Schedule ---
+st.subheader("4. Generate Daily Schedule")
 
 if st.session_state.scheduler is None:
     st.info("Please set up your profile first.")
 else:
     if st.button("Generate Schedule"):
-        plan = st.session_state.scheduler.generate_plan()
+        plan, conflicts = st.session_state.scheduler.generate_plan()
+
+        if conflicts:
+            st.warning("⚠️ Scheduling conflicts detected:")
+            for c in conflicts:
+                st.error(c)
+
         if not plan:
             st.warning("No tasks fit within your available time.")
         else:
             st.success(f"Here is {st.session_state.owner.name}'s plan for today!")
-            for i, task in enumerate(plan, 1):
-                st.markdown(f"**{i}. {task.name}** — {task.duration} min | Priority: {task.priority}")
+            st.table([{
+                "Task": t.name,
+                "Start Time": t.start_time,
+                "Duration (min)": t.duration,
+                "Priority": t.priority,
+                "Due Date": t.due_date,
+                "Status": "✅ Done" if t.completed else "⏳ Pending"
+            } for t in plan])
